@@ -50,6 +50,50 @@ function get_tasks() {
   }
 }
 
+//======更新localStorage中的排序======
+function items_sort(item_id, direction) {
+  let tasks = JSON.parse(localStorage.getItem('tasks'));
+
+  if (direction == 'up') {
+    //往上
+    let current_li_index; //宣告點擊當下的該項索引
+    let current_li_data; //宣告點擊當下的該項資料內容
+    let before_li_data; //宣告前一項資料內容
+
+    tasks.forEach(function (task, i) {
+      //做迴圈比對
+      if (item_id == task.item_id) {
+        //如果item_id等於該項的item_id
+        current_li_index = i; //取得點擊的li索引 1
+        current_li_data = task; //取得點擊的li資料 你
+        before_li_data = tasks[i - 1]; //取得點擊的li的前一項資料 0 娘
+      }
+    });
+    tasks[current_li_index - 1] = current_li_data; //點擊後前一項資料變成當前資料 0 = 你
+    tasks[current_li_index] = before_li_data; //當前資料變成前一向資料，達成往上目的 1 娘
+  }
+
+  if (direction == 'down') {
+    //往下
+    let current_li_index; //宣告點擊當下的該項索引
+    let current_li_data; //宣告點擊當下的該項資料內容
+    let after_li_data; //宣告後一項資料內容
+
+    tasks.forEach(function (task, i) {
+      //做迴圈比對
+      if (item_id == task.item_id) {
+        //如果item_id等於該項的item_id
+        current_li_index = i; //取得點擊的li索引
+        current_li_data = task; //取得點擊的li資料
+        after_li_data = tasks[i + 1]; //取得點擊的li的下一項資料
+      }
+    });
+    tasks[current_li_index] = after_li_data; //當前資料變成後一向資料，達成往下目的
+    tasks[current_li_index + 1] = current_li_data; //點擊後下一項資料變成當前資料
+  }
+  localStorage.setItem('tasks', JSON.stringify(tasks)); //更新後推上資料庫
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   get_tasks(); // DOMContentLoaded 事件發生時，執行這裡的程式
 
@@ -196,19 +240,22 @@ clear_btn.addEventListener('click', function () {
 //
 // ======更新待辦事項======
 document.addEventListener('click', function (e) {
-  console.log('ccc');
+  //對瀏覽器綁定click事件，因無資料時沒有更新按鈕可以按，所以用事件冒泡特性執行
   if (e.target.classList.contains('btn_update')) {
-    // console.log('cccccc');
+    //如果點擊到更新按鈕執行以下程式
+
     let update_list = e.target
       .closest('li')
       .querySelector('input.task_name_update')
-      .value.trim();
+      .value.trim(); //更新欄位輸入的值給update_list
     console.log(update_list);
     if (update_list == '') {
+      ///如果欄位是空字串，提醒要輸入
       alert('輸入啦幹');
     } else {
-      e.target.closest('li').querySelector('p.para').innerHTML = update_list;
+      e.target.closest('li').querySelector('p.para').innerHTML = update_list; //不是空字串的話，找到該點擊項目最近的li標籤，再找到裡面的class為para的p段落，更新到頁面上的值等於update_list
       if (
+        //如果點擊後，p段落class有-none的話移除，沒有的話就加入-none，此用意在於點擊更新後可以將顯示原資料改成顯示更新輸入欄位
         e.target
           .closest('li')
           .querySelector('p.para')
@@ -224,8 +271,9 @@ document.addEventListener('click', function (e) {
 
       e.target
         .closest('li')
-        .querySelector('input.task_name_update').value = update_list;
+        .querySelector('input.task_name_update').value = update_list; //更新欄位輸入的值等於update_list
       if (
+        //如果點擊後，更新的輸入欄有-none的class標籤則移除，沒有則加入
         e.target
           .closest('li')
           .querySelector('input.task_name_update')
@@ -241,6 +289,95 @@ document.addEventListener('click', function (e) {
           .querySelector('input.task_name_update')
           .classList.add('-none');
       }
+
+      // ======更新localStorage中，name的資料======
+      let update_item = e.target.closest('li').getAttribute('data-id'); //點擊後取得最近li的元素data-id
+      let get_local_tasks = JSON.parse(localStorage.getItem('tasks')); //將資料庫資料取出來並轉成物件型態以便做迴圈比對操作
+      get_local_tasks.forEach(function (items, i) {
+        if (update_item == items.item_id) {
+          //如果data-id等於取出的資料的item_id，那就將update_list的值給get_local_tasks該項的name
+          get_local_tasks[i].name = update_list;
+        }
+      });
+      localStorage.setItem('tasks', JSON.stringify(get_local_tasks)); //資料庫更新資料
+    }
+  }
+});
+//
+//
+//
+// ======排序======
+document.addEventListener('click', function (e) {
+  // 往上
+  if (
+    e.target.classList.contains('btn_up') &&
+    e.target.closest('li').previousElementSibling
+  ) {
+    //如果點擊當下點到往上按鈕，且前面是有元素的情況下執行下面程式
+    let li_el = e.target.closest('li');
+    //取得點擊當下最近的li
+    let item_id = li_el.getAttribute('data-id');
+    //取得這個li的data-id
+    let clone_html = li_el.outerHTML;
+    //將這個li的內容複製成字串
+    li_el.previousElementSibling.insertAdjacentHTML('beforebegin', clone_html); //在li的前一個元素之前，加入上面複製下來的內容
+    li_el.remove(); //再把原本的li刪除達成往上目的
+    // ======更新localStorage的排序======
+    items_sort(item_id, 'up'); //呼叫itmes_sort這支function
+  }
+
+  // 往下
+  if (
+    e.target.classList.contains('btn_down') &&
+    e.target.closest('li').nextElementSibling
+  ) {
+    //如果點擊當下點到往下按鈕，且後面是有元素的情況下執行下面程式
+    let li_el = e.target.closest('li');
+    //取得點擊當下最近的li
+    let item_id = li_el.getAttribute('data-id');
+    //取得這個li的data-id
+    let clone_html = li_el.outerHTML;
+    //將這個li的內容複製成字串
+    li_el.nextElementSibling.insertAdjacentHTML('afterend', clone_html); //在li的前一個元素之前，加入上面複製下來的內容
+    li_el.remove(); //再把原本的li刪除達成往上目的
+    // ======更新localStorage的排序======
+    items_sort(item_id, 'down'); //呼叫itmes_sort這支function
+  }
+});
+//
+//
+//
+// ==== 星號的重要性 ===== //
+document.addEventListener('click', function (e) {
+  if (e.target.closest('span')) {
+    //如果點擊到星星
+    let span_el = e.target.closest('span'); //最近的span
+    if (span_el.classList.contains('star')) {
+      //如果最近的span有star這個class
+      let current_star = parseInt(span_el.getAttribute('data-star')); //將當下點擊到的span的data-star(星號編號)轉成數字
+      let star_span = span_el
+        .closest('div.star_block')
+        .querySelectorAll('span.star'); //取得有star這個class的所有span
+      star_span.forEach(function (star_item, i) {
+        //做迴圈判斷
+        if (parseInt(star_item.getAttribute('data-star')) <= current_star) {
+          //迴圈執行中，如果data-star數字小於等於點擊到的星星數字，就都加上-on，反之移除
+          star_span[i].classList.add('-on');
+        } else {
+          star_span[i].classList.remove('-on');
+        }
+      });
+      // ======更新localStorage中的star資料 ======//
+      let item_id = span_el.closest('li').getAttribute('data-id'); //取得點擊星星當下最近的li的data-id
+      let tasks = JSON.parse(localStorage.getItem('tasks'));
+      //取得資料庫資料並轉成物件進行迴圈判斷
+      tasks.forEach(function (task, i) {
+        if (item_id == task.item_id) {
+          //如果item_id等於task的item_id
+          tasks[i].star = current_star; //迴圈當下的這個tasks星星值為當下點擊到的星星數字
+        }
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks)); //資料更新後回推到資料庫
     }
   }
 });

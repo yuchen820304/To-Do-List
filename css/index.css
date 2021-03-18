@@ -27,7 +27,7 @@ h1.title1 {
 }
 
 /* ===== 清空按鈕 ===== */
-button.btn_empty{
+button.btn_empty {
   float: right;
   background: none;
   background-color: white;
@@ -314,7 +314,7 @@ div.task_list_parent
   border: 1px solid #eee;
 }
 
-div.middle_block input.task_name_update{
+div.middle_block input.task_name_update {
   width: 100%;
   border: 1px solid lightgray;
   border-radius: 3px 0 0 3px;
@@ -323,10 +323,23 @@ div.middle_block input.task_name_update{
   padding: 5px 10px;
   outline: none;
 }
-div.middle_block input.task_name_update::placeholder{
+div.middle_block input.task_name_update::placeholder {
   color: lightgray;
 }
 
-.-none{
+.-none {
   display: none;
+}
+
+/* ===== 重要性的星號 ===== */
+div.star_block {
+  display: inline-block;
+}
+div.star_block > span.star {
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 3px;
+}
+div.star_block > span.star.-on {
+  color: yellow;
 }
