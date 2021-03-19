@@ -192,21 +192,20 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('click', function (e) {
   if (e.target.classList.contains('btn_delete')) {
     //在網頁點擊時，如果點擊到的是移除按鈕，執行以下判斷
-    let check_delete = confirm('想移除是不是?'); //跳出確認視窗，要宣告變數放入，下面會用到此變數控制
+    let check_delete = confirm('是否移除?'); //跳出確認視窗，要宣告變數放入，下面會用到此變數控制
     if (check_delete) {
       // 先從localStorage移除資料
       let del_item = e.target.closest('li').getAttribute('data-id');
-      console.log(del_item);
       //取得點擊移除鈕當下最靠近該按鈕最近的li，元素data-id裡的內容
       let get_local_tasks = JSON.parse(localStorage.getItem('tasks'));
-      console.log(get_local_tasks);
+      let updated_tasks = [];
       //取得localStorage項目為tsaks的資料，因取出來的是字串型態，所以需用語法JSON.parse()轉成物件以便能做取物件內資料動作
       get_local_tasks.forEach(function (items, i) {
-        if (del_item == items.item_id) {
-          get_local_tasks.splice(get_local_tasks[i], 1);
+        if (del_item != items.item_id) {
+          updated_tasks.push(items);
         }
       }); //將從localStoreage拿出的tasks物件做迴圈逐一比對判斷，如果del_item拿到的data-id等於get_local_tasks的項目id，則使用陣列刪除.splice語法，刪除該項索引，個數一個
-      localStorage.setItem('tasks', JSON.stringify(get_local_tasks)); //刪除完後但資料庫還沒更新，所以要.setItem到資料庫該物件名稱(key)tasks，要放入的資料(value)，並且要用JSON.stringify()將字串型態轉成物件型態
+      localStorage.setItem('tasks', JSON.stringify(updated_tasks)); //刪除完後但資料庫還沒更新，所以要.setItem到資料庫該物件名稱(key)tasks，要放入的資料(value)，並且要用JSON.stringify()將字串型態轉成物件型態
       e.target.closest('li').classList.add('fade_out'); //當將下點擊的移除鈕之最靠近的li加上fade_out的class(fade_out已寫在CSS)
       setTimeout(function () {
         e.target.closest('li').remove();
@@ -220,7 +219,7 @@ document.addEventListener('click', function (e) {
 // ======清空資料======
 let clear_btn = document.getElementsByClassName('btn_empty')[0];
 clear_btn.addEventListener('click', function () {
-  let check_clear = confirm('想清除逆啦');
+  let check_clear = confirm('是否清空?');
   if (check_clear) {
     // 先從localStorage清空資料
     localStorage.clear(); //清空資料庫
@@ -251,7 +250,7 @@ document.addEventListener('click', function (e) {
     console.log(update_list);
     if (update_list == '') {
       ///如果欄位是空字串，提醒要輸入
-      alert('輸入啦幹');
+      alert('請輸入更新內容!');
     } else {
       e.target.closest('li').querySelector('p.para').innerHTML = update_list; //不是空字串的話，找到該點擊項目最近的li標籤，再找到裡面的class為para的p段落，更新到頁面上的值等於update_list
       if (
