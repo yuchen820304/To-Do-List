@@ -64,13 +64,13 @@ function items_sort(item_id, direction) {
       //做迴圈比對
       if (item_id == task.item_id) {
         //如果item_id等於該項的item_id
-        current_li_index = i; //取得點擊的li索引 1
-        current_li_data = task; //取得點擊的li資料 你
-        before_li_data = tasks[i - 1]; //取得點擊的li的前一項資料 0 娘
+        current_li_index = i; //取得點擊的li索引
+        current_li_data = task; //取得點擊的li資料
+        before_li_data = tasks[i - 1]; //取得點擊的li的前一項資料
       }
     });
-    tasks[current_li_index - 1] = current_li_data; //點擊後前一項資料變成當前資料 0 = 你
-    tasks[current_li_index] = before_li_data; //當前資料變成前一向資料，達成往上目的 1 娘
+    tasks[current_li_index - 1] = current_li_data; //點擊後前一項資料變成當前資料
+    tasks[current_li_index] = before_li_data; //當前資料變成前一向資料，達成往上目的
   }
 
   if (direction == 'down') {
